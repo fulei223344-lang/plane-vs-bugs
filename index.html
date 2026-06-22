@@ -34,10 +34,20 @@ canvas{display:block;width:100%;height:100%;border-radius:6px;background:radial-
 #ranking-panel::-webkit-scrollbar{width:5px}
 #ranking-panel::-webkit-scrollbar-track{background:rgba(255,255,255,.03)}
 #ranking-panel::-webkit-scrollbar-thumb{background:rgba(0,255,136,.25);border-radius:3px}
+/* 触屏控件 */
+#touch-joystick,#touch-fire{display:none;position:fixed;z-index:1000;touch-action:none}
+#touch-joystick{bottom:28px;left:24px;width:130px;height:130px}
+#touch-joystick .js-base{position:absolute;width:120px;height:120px;top:5px;left:5px;border-radius:50%;background:rgba(0,20,50,.35);border:2px solid rgba(51,153,255,.45);box-shadow:0 0 24px rgba(51,153,255,.2),inset 0 0 18px rgba(51,153,255,.08);pointer-events:none}
+#touch-joystick .js-knob{position:absolute;width:50px;height:50px;border-radius:50%;background:rgba(51,153,255,.35);border:2px solid rgba(51,153,255,.65);top:40px;left:40px;box-shadow:0 0 14px rgba(51,153,255,.35);pointer-events:none;transition:top .06s ease-out,left .06s ease-out}
+#touch-joystick .js-knob.drag{transition:none}
+#touch-fire{bottom:32px;right:24px;width:82px;height:82px;border-radius:50%;background:rgba(180,20,30,.3);border:2px solid rgba(255,68,102,.5);color:#ff4466;font-size:20px;font-weight:bold;line-height:82px;text-align:center;user-select:none;box-shadow:0 0 22px rgba(255,68,102,.25);-webkit-user-select:none}
+#touch-fire:active,#touch-fire.pressed{background:rgba(255,40,60,.5);border-color:rgba(255,68,102,.85);box-shadow:0 0 40px rgba(255,68,102,.55);color:#ff6688}
 </style>
 </head>
 <body>
 <div id="gc"><canvas id="c"></canvas><div id="hud"></div><div id="boss-bar-wrap"><div id="boss-bar"></div></div><div id="boss-label">BOSS</div><div id="login-overlay"><div class="login-title">战机 vs 虫群</div><input id="nick-input" type="text" placeholder="输入昵称" maxlength="16" autocomplete="off"><input id="age-input" type="number" placeholder="输入年龄 (1-120)" min="1" max="120"><div class="login-err" id="login-err"></div><button id="login-btn">开始游戏</button></div><div id="ranking-panel"></div></div>
+<div id="touch-joystick"><div class="js-base"></div><div class="js-knob"></div></div>
+<div id="touch-fire">开火</div>
 <script>
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 const W=cv.width=480,H=cv.height=720;
@@ -100,6 +110,97 @@ cv.addEventListener('touchmove',e=>{
     p1.x=Math.max(p1.w/2,Math.min(W-p1.w/2,p1.x));p1.y=Math.max(p1.h/2,Math.min(H-p1.h/2,p1.y));
 },{passive:false});
 let mouseX=W/2,mouseY=H/2,mouseFire=false;
+// === 触屏控件 ===
+let touchControlsShown=false,touchJoystickActive=false,touchJoystickDX=0,touchJoystickDY=0,touchFireActive=false;
+let jsTouchId=null;
+(function initTouchControls(){
+    if(!('ontouchstart' in window) && !(navigator.maxTouchPoints>0)) return;
+    touchControlsShown=true;
+    document.getElementById('touch-joystick').style.display='block';
+    document.getElementById('touch-fire').style.display='block';
+    const jsBase=document.getElementById('touch-joystick');
+    const jsKnob=jsBase.querySelector('.js-knob');
+    const fireBtn=document.getElementById('touch-fire');
+    const baseR=60;
+    function getJsCenter(){
+        const r=jsBase.getBoundingClientRect();
+        return {cx:r.left+65,cy:r.top+65};
+    }
+    function updateKnob(dx,dy){
+        const dist=Math.hypot(dx,dy);
+        if(dist>baseR){dx=dx/dist*baseR;dy=dy/dist*baseR;}
+        const offX=40+dx,offY=40+dy;
+        jsKnob.style.left=offX+'px';jsKnob.style.top=offY+'px';
+        touchJoystickDX=dx/baseR;touchJoystickDY=dy/baseR;
+    }
+    function resetKnob(){
+        jsKnob.classList.remove('drag');
+        jsKnob.style.left='40px';jsKnob.style.top='40px';
+        touchJoystickDX=0;touchJoystickDY=0;touchJoystickActive=false;
+    }
+    jsBase.addEventListener('touchstart',e=>{
+        if(gs===S.LOGIN)return;
+        e.preventDefault();e.stopPropagation();
+        if(jsTouchId!==null)return;
+        const t=e.changedTouches[0];jsTouchId=t.identifier;
+        const {cx,cy}=getJsCenter();
+        jsKnob.classList.add('drag');
+        updateKnob(t.clientX-cx,t.clientY-cy);
+        touchJoystickActive=true;
+    },{passive:false});
+    jsBase.addEventListener('touchmove',e=>{
+        e.preventDefault();e.stopPropagation();
+        for(let i=0;i<e.changedTouches.length;i++){
+            if(e.changedTouches[i].identifier===jsTouchId){
+                const {cx,cy}=getJsCenter();
+                updateKnob(e.changedTouches[i].clientX-cx,e.changedTouches[i].clientY-cy);
+                break;
+            }
+        }
+    },{passive:false});
+    jsBase.addEventListener('touchend',e=>{
+        e.preventDefault();e.stopPropagation();
+        for(let i=0;i<e.changedTouches.length;i++){
+            if(e.changedTouches[i].identifier===jsTouchId){jsTouchId=null;resetKnob();break;}
+        }
+    });
+    jsBase.addEventListener('touchcancel',()=>{jsTouchId=null;resetKnob();});
+    jsBase.addEventListener('mousedown',e=>{
+        if(gs===S.LOGIN)return;
+        e.preventDefault();e.stopPropagation();
+        if(jsTouchId!==null)return;
+        jsTouchId='mouse';
+        const {cx,cy}=getJsCenter();
+        jsKnob.classList.add('drag');
+        updateKnob(e.clientX-cx,e.clientY-cy);
+        touchJoystickActive=true;
+    });
+    document.addEventListener('mousemove',e=>{
+        if(jsTouchId!=='mouse')return;
+        const {cx,cy}=getJsCenter();
+        updateKnob(e.clientX-cx,e.clientY-cy);
+    });
+    document.addEventListener('mouseup',e=>{
+        if(jsTouchId==='mouse'){jsTouchId=null;resetKnob();}
+    });
+    fireBtn.addEventListener('touchstart',e=>{
+        if(gs===S.LOGIN)return;
+        e.preventDefault();e.stopPropagation();
+        touchFireActive=true;fireBtn.classList.add('pressed');
+    });
+    fireBtn.addEventListener('touchend',e=>{
+        e.preventDefault();e.stopPropagation();
+        touchFireActive=false;fireBtn.classList.remove('pressed');
+    });
+    fireBtn.addEventListener('touchcancel',()=>{touchFireActive=false;fireBtn.classList.remove('pressed')});
+    fireBtn.addEventListener('mousedown',e=>{
+        if(gs===S.LOGIN)return;
+        e.preventDefault();e.stopPropagation();
+        touchFireActive=true;fireBtn.classList.add('pressed');
+    });
+    fireBtn.addEventListener('mouseup',e=>{touchFireActive=false;fireBtn.classList.remove('pressed')});
+    fireBtn.addEventListener('mouseleave',()=>{touchFireActive=false;fireBtn.classList.remove('pressed')});
+})();
 cv.addEventListener('mousemove',e=>{
     const r=cv.getBoundingClientRect();
     mouseX=(e.clientX-r.left)*(W/r.width);mouseY=(e.clientY-r.top)*(H/r.height);
@@ -869,10 +970,20 @@ let dx_=0;// 用于引擎光焰
 const _origUpdatePlayer=updatePlayer;
 updatePlayer=function(pl,left,right,up,down,fireKey){
     let preX=pl.x,preY=pl.y;
-    let origKey=keys[fireKey];
+    let origFire=keys[fireKey],origLeft=keys[left],origRight=keys[right],origUp=keys[up],origDown=keys[down];
+    if(pl===p1&&touchControlsShown){
+        if(touchJoystickActive){
+            const dead=0.15;
+            if(touchJoystickDX<-dead)keys[left]=true;
+            if(touchJoystickDX>dead)keys[right]=true;
+            if(touchJoystickDY<-dead)keys[up]=true;
+            if(touchJoystickDY>dead)keys[down]=true;
+        }
+        if(touchFireActive)keys[fireKey]=true;
+    }
     if(pl===p1&&mouseFire)keys[fireKey]=true;
     _origUpdatePlayer(pl,left,right,up,down,fireKey);
-    keys[fireKey]=origKey;
+    keys[fireKey]=origFire;keys[left]=origLeft;keys[right]=origRight;keys[up]=origUp;keys[down]=origDown;
     if(pl===p1)dx_=pl.x-preX;
 };
 
