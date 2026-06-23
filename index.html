@@ -988,7 +988,19 @@ updatePlayer=function(pl,left,right,up,down,fireKey){
 };
 
 p1=mkPl(W/2,'#3399ff');
-function loop(){update();draw();requestAnimationFrame(loop)}loop();
+const FIXED_STEP=1000/60;
+let lastTime=0,acc=0;
+function loop(t){
+  if(!lastTime)lastTime=t;
+  let dt=t-lastTime;lastTime=t;
+  if(dt>100)dt=FIXED_STEP;
+  acc+=dt;
+  if(acc>FIXED_STEP*3)acc=FIXED_STEP*3;
+  while(acc>=FIXED_STEP){update();acc-=FIXED_STEP;}
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
