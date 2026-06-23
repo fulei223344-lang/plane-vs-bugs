@@ -21,19 +21,18 @@ canvas{display:block;width:100%;height:100%;border-radius:6px;background:radial-
 #login-overlay button:hover{background:rgba(0,255,136,.3)}
 #login-overlay .login-title{color:#00ff88;font-size:24px;font-weight:bold;margin-bottom:18px;text-shadow:0 0 14px rgba(0,255,136,.6)}
 #login-overlay .login-err{color:#ff4444;font-size:12px;min-height:18px;margin-top:4px}
-#login-user-list{display:none;flex-direction:column;align-items:center;width:240px;max-height:340px;overflow-y:auto;margin-bottom:6px}
-#login-user-list::-webkit-scrollbar{width:4px}
-#login-user-list::-webkit-scrollbar-track{background:rgba(255,255,255,.02)}
-#login-user-list::-webkit-scrollbar-thumb{background:rgba(0,255,136,.2);border-radius:3px}
-.login-user-card{width:100%;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.2);border-radius:8px;padding:10px 14px;margin:4px 0;cursor:pointer;color:#00ff88;font-size:14px;text-align:center;transition:background .15s,border-color .15s;font-family:'PingFang SC','Microsoft YaHei',sans-serif}
-.login-user-card:hover{background:rgba(0,255,136,.18);border-color:rgba(0,255,136,.45)}
-.login-user-card .uc-nick{font-weight:bold;font-size:15px}
-.login-user-card .uc-age{font-size:11px;color:rgba(0,255,136,.55);margin-left:6px}
-#login-new-user-btn{width:100%;background:rgba(255,136,0,.08);border:1px dashed rgba(255,136,0,.4);color:#ffaa44;padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;margin-top:6px;font-family:'PingFang SC','Microsoft YaHei',sans-serif;transition:background .15s}
-#login-new-user-btn:hover{background:rgba(255,136,0,.18);border-color:rgba(255,136,0,.7)}
-#login-new-user-form{display:none;flex-direction:column;align-items:center}
-#login-back-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.2);color:#aaa;padding:6px 18px;border-radius:6px;font-size:12px;cursor:pointer;margin-bottom:8px;font-family:'PingFang SC','Microsoft YaHei',sans-serif;transition:background .15s}
-#login-back-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+/* 历史用户列表 */
+#login-history{display:flex;flex-direction:column;align-items:center;gap:8px;max-height:300px;overflow-y:auto;padding:0 10px;width:100%}
+#login-history::-webkit-scrollbar{width:4px}
+#login-history::-webkit-scrollbar-track{background:rgba(255,255,255,.03)}
+#login-history::-webkit-scrollbar-thumb{background:rgba(0,255,136,.2);border-radius:2px}
+.login-user-card{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25);border-radius:8px;padding:10px 18px;width:220px;cursor:pointer;transition:background .2s,border-color .2s;text-align:center;color:#00ff88;font-size:15px;font-family:'PingFang SC','Microsoft YaHei',sans-serif}
+.login-user-card:hover{background:rgba(0,255,136,.18);border-color:#00ff88}
+.login-user-card .uc-name{font-weight:bold;font-size:16px}
+.login-user-card .uc-age{font-size:12px;color:rgba(0,255,136,.55);margin-top:2px}
+#login-new-user-btn{background:rgba(0,200,255,.1);border:1px dashed rgba(0,200,255,.4);color:#44ccff;padding:8px 30px;border-radius:8px;font-size:14px;cursor:pointer;margin-top:6px;font-family:'PingFang SC','Microsoft YaHei',sans-serif;transition:background .2s}
+#login-new-user-btn:hover{background:rgba(0,200,255,.22)}
+#login-loading{color:rgba(0,255,136,.5);font-size:14px;margin-top:10px;animation:pulse 1.5s infinite}
 #ranking-panel{position:absolute;top:28px;left:18px;right:18px;bottom:28px;display:none;background:rgba(0,0,20,.92);border:1px solid #00ff88;border-radius:8px;z-index:10;overflow-y:auto;padding:18px 14px;color:#fff;font-size:13px;box-shadow:0 0 30px rgba(0,255,136,.25)}
 #ranking-panel .rp-title{color:#ff4444;font-size:28px;font-weight:bold;text-align:center;text-shadow:0 0 14px #ff0000;margin-bottom:8px}
 #ranking-panel .rp-stats{color:#fff;font-size:15px;text-align:center;margin-bottom:14px;line-height:1.6}
@@ -58,14 +57,14 @@ canvas{display:block;width:100%;height:100%;border-radius:6px;background:radial-
 </style>
 </head>
 <body>
-<div id="gc"><canvas id="c"></canvas><div id="hud"></div><div id="boss-bar-wrap"><div id="boss-bar"></div></div><div id="boss-label">BOSS</div><div id="login-overlay"><div class="login-title">战机 vs 虫群</div><div id="login-user-list"></div><div id="login-new-user-form"><input id="nick-input" type="text" placeholder="输入昵称" maxlength="16" autocomplete="off"><input id="age-input" type="number" placeholder="输入年龄 (1-120)" min="1" max="120"><div class="login-err" id="login-err"></div><button id="login-btn">开始游戏</button></div></div><div id="ranking-panel"></div></div>
+<div id="gc"><canvas id="c"></canvas><div id="hud"></div><div id="boss-bar-wrap"><div id="boss-bar"></div></div><div id="boss-label">BOSS</div><div id="login-overlay"><div class="login-title">战机 vs 虫群</div><div id="login-history"></div><div id="login-new-user"><input id="nick-input" type="text" placeholder="输入昵称" maxlength="16" autocomplete="off"><input id="age-input" type="number" placeholder="输入年龄 (1-120)" min="1" max="120"><div class="login-err" id="login-err"></div><button id="login-btn">开始游戏</button></div><button id="login-new-user-btn" style="display:none">+ 新用户</button><div id="login-loading" style="display:none">加载中...</div></div><div id="ranking-panel"></div></div>
 <div id="touch-joystick"><div class="js-base"></div><div class="js-knob"></div></div>
 <div id="touch-fire">开火</div>
 <script>
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 const W=cv.width=480,H=cv.height=720;
 const S={MENU:0,PLAYING:1,OVER:2,WIN:3,LOGIN:4};
-let gs=S.LOGIN,mode=0,score=0,kills=0,wave=1,si=0,menuSel=0;let playerNick='',playerAge=0,rankingShown=!1,loginUIReady=!1;
+let gs=S.LOGIN,mode=0,score=0,kills=0,wave=1,si=0,menuSel=0;let playerNick='',playerAge=0,rankingShown=!1;
 let boss=null,bossHp=0,bossMaxHp=0,bossIntro=0,waveKills=0,waveKillsNeeded=12;
 let splitLv=0,fanLv=0,blueStars=0,lightningLv=0,laserLv=0,bulletType='fan';
 let waveMod='NORMAL',waveAnnounce='',waveAnnAlpha=0,waveModBase=0;
@@ -74,6 +73,149 @@ let combo=0,comboTimer=0,comboMax=0,streakMsg='',streakAlpha=0,streakText='';
 let shakeX=0,shakeY=0,shakeDur=0;
 let scorePops=[];
 const STREAKS=[{k:5,t:'5连杀!'},{k:10,t:'连杀×10!'},{k:15,t:'无双!'},{k:20,t:'屠杀!'},{k:30,t:'神挡杀神!'},{k:50,t:'虫族灭绝者!!'}];
+
+// ============ RankingStore: 排名存储封装 ============
+// 默认方案 C（localStorage），预留接口方便以后切换到服务端
+const RankingStore = (function(){
+  const STORAGE_KEY = 'plane_vs_bugs_rankings';
+  // ---- 方案切换 ----
+  // 改为 true 且填入 BIN_ID / API_KEY 即可切换到 JSONBin.io
+  const USE_SERVER = false;
+  const BIN_ID = '';
+  const API_KEY = '';
+  const API_BASE = 'https://api.jsonbin.io/v3/b';
+
+  function _localLoad(){
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    catch(e) { return []; }
+  }
+  function _localSave(data){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  async function _serverLoad(){
+    const resp = await fetch(`${API_BASE}/${BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': API_KEY }
+    });
+    if (!resp.ok) throw new Error('加载排名失败');
+    const json = await resp.json();
+    return json.record || [];
+  }
+  async function _serverSave(data){
+    const resp = await fetch(`${API_BASE}/${BIN_ID}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+      body: JSON.stringify(data)
+    });
+    if (!resp.ok) throw new Error('保存排名失败');
+  }
+
+  return {
+    async loadRankings(){
+      if (USE_SERVER && BIN_ID && API_KEY) return _serverLoad();
+      return _localLoad();
+    },
+    async saveRankings(entry){
+      let rankings;
+      if (USE_SERVER && BIN_ID && API_KEY) {
+        rankings = await _serverLoad();
+      } else {
+        rankings = _localLoad();
+      }
+      rankings.push(entry);
+      rankings.sort((x, y) => y.score - x.score);
+      if (rankings.length > 100) rankings = rankings.slice(0, 100);
+      if (USE_SERVER && BIN_ID && API_KEY) {
+        await _serverSave(rankings);
+      } else {
+        _localSave(rankings);
+      }
+    }
+  };
+})();
+
+// ============ 历史用户管理 ============
+function loadHistoryUsers(){
+  try { return JSON.parse(localStorage.getItem('plane_vs_bugs_users') || '[]'); }
+  catch(e) { return []; }
+}
+function saveHistoryUser(nickname, age){
+  let users = loadHistoryUsers();
+  users = users.filter(function(u){ return !(u.nickname === nickname && u.age === age); });
+  users.unshift({ nickname: nickname, age: age });
+  if (users.length > 10) users = users.slice(0, 10);
+  localStorage.setItem('plane_vs_bugs_users', JSON.stringify(users));
+}
+
+// ============ 登录界面初始化 ============
+function initLoginScreen(){
+  var historyDiv = document.getElementById('login-history');
+  var newUserDiv = document.getElementById('login-new-user');
+  var newUserBtn = document.getElementById('login-new-user-btn');
+  var loadingDiv = document.getElementById('login-loading');
+  var users = loadHistoryUsers();
+
+  historyDiv.innerHTML = '';
+  newUserDiv.style.display = 'none';
+  newUserBtn.style.display = 'none';
+  loadingDiv.style.display = 'none';
+
+  if (users.length === 0) {
+    // 首次使用：直接显示输入框
+    newUserDiv.style.display = 'block';
+    return;
+  }
+
+  // 有历史用户：渲染用户卡片
+  for (var i = 0; i < users.length; i++) {
+    (function(u){
+      var card = document.createElement('div');
+      card.className = 'login-user-card';
+      card.innerHTML = '<div class="uc-name">' + esc(u.nickname) + '</div><div class="uc-age">年龄: ' + u.age + '</div>';
+      card.addEventListener('click', function(){
+        playerNick = u.nickname;
+        playerAge = u.age;
+        saveHistoryUser(u.nickname, u.age);
+        document.getElementById('login-overlay').style.display = 'none';
+        gs = S.MENU;
+      });
+      historyDiv.appendChild(card);
+    })(users[i]);
+  }
+
+  newUserBtn.style.display = 'block';
+  newUserBtn.addEventListener('click', function(){
+    historyDiv.style.display = 'none';
+    newUserBtn.style.display = 'none';
+    newUserDiv.style.display = 'block';
+    document.getElementById('nick-input').value = '';
+    document.getElementById('age-input').value = '';
+    document.getElementById('login-err').textContent = '';
+  });
+}
+
+// 登录按钮
+document.getElementById('login-btn').addEventListener('click', function(){
+  var n = document.getElementById('nick-input').value.trim();
+  var a = parseInt(document.getElementById('age-input').value);
+  var er = '';
+  if (!n) er = '请输入昵称';
+  else {
+    var cjk = 0;
+    for (var ci = 0; ci < n.length; ci++) if (n.charCodeAt(ci) > 0x7f) cjk++;
+    if (cjk > n.length / 2 && n.length > 8) er = '昵称最多8个中文字符';
+    else if (n.length > 16) er = '昵称最多16个字符';
+  }
+  if (!er && (!a || a < 1 || a > 120)) er = '请输入有效年龄 (1-120)';
+  if (er) { document.getElementById('login-err').textContent = er; return; }
+  playerNick = n;
+  playerAge = a;
+  saveHistoryUser(n, a);
+  document.getElementById('login-overlay').style.display = 'none';
+  gs = S.MENU;
+});
+document.getElementById('nick-input').addEventListener('keydown', function(e){ if (e.key === 'Enter') document.getElementById('login-btn').click(); });
+document.getElementById('age-input').addEventListener('keydown', function(e){ if (e.key === 'Enter') document.getElementById('login-btn').click(); });
 
 const FAN_CNT=[3,6,9,13,16],FAN_SP=[0,14,22,30,36];
 const MIS_CNT=[0,2,4],MIS_BLAST=[0,65,130];
@@ -220,13 +362,12 @@ cv.addEventListener('mousemove',e=>{
     if(gs===S.PLAYING&&mode===0){
         p1.x=Math.max(p1.w/2,Math.min(W-p1.w/2,mouseX));p1.y=Math.max(p1.h/2,Math.min(H-p1.h/2,mouseY));
     }
-    // menu hover
     if(gs===S.MENU){
         for(let i=0;i<2;i++){let yy=H/2-20+i*48;let bx=W/2-110,by=yy-18,bw=220,bh=40;
         if(mouseX>=bx&&mouseX<=bx+bw&&mouseY>=by&&mouseY<=by+bh){menuSel=i;break}}
     }
 });
-cv.addEventListener('click',e=>{}); // placeholder, actual handling in mousedown below
+cv.addEventListener('click',e=>{});
 cv.addEventListener('mousedown',e=>{
     if(gs===S.PLAYING){mouseFire=true;e.preventDefault();return}
     if(gs===S.LOGIN)return;
@@ -242,17 +383,45 @@ cv.addEventListener('mouseup',e=>{mouseFire=false});
 cv.addEventListener('touchstart',e=>{e.preventDefault();if(gs===S.LOGIN)return;if(gs===S.OVER||gs===S.WIN){backToMenu()}else if(gs===S.MENU){mode=0;start()}});
 
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-const RankingStore={API_URL:'',loadRankings(){try{return JSON.parse(localStorage.getItem('plane_vs_bugs_rankings')||'[]')}catch(e){return[]}},saveRankings(e){let r=this.loadRankings(),d=new Date();e.date=`${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;r.push(e);r.sort((x,y)=>y.score-x.score);if(r.length>100)r=r.slice(0,100);localStorage.setItem('plane_vs_bugs_rankings',JSON.stringify(r));if(this.API_URL){try{fetch(this.API_URL+'/rankings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(e)})}catch(_){}}}}
-function loadUsers(){try{return JSON.parse(localStorage.getItem('plane_vs_bugs_users')||'[]')}catch(e){return[]}}
-function saveUser(n,a){let u=loadUsers();u=u.filter(x=>!(x.nickname===n&&x.age===a));u.unshift({nickname:n,age:a});if(u.length>10)u=u.slice(0,10);localStorage.setItem('plane_vs_bugs_users',JSON.stringify(u))}
-function showRankingPanel(){let rk=RankingStore.loadRankings();let e={nickname:playerNick,age:playerAge,score:score,wave:wave,kills:kills,comboMax:comboMax};let top=rk.slice(0,20);let h=`<div class="rp-title">游戏结束</div><div class="rp-stats">得分:${score} | 波数:${wave} | 击杀:${kills} | 最高连击:${comboMax}</div><div class="rp-subtitle">历史排名 (前20)</div><table><thead><tr><th>#</th><th>昵称</th><th>年龄</th><th>分数</th><th>波数</th><th>日期</th></tr></thead><tbody>`;for(let i=0;i<top.length;i++){let r=top[i];let me=r.score===e.score&&r.wave===e.wave&&r.kills===e.kills&&r.nickname===e.nickname;h+=`<tr class="${me?'rp-me':''}"><td>${i+1}</td><td>${esc(r.nickname)}</td><td>${r.age}</td><td>${r.score}</td><td>${r.wave}</td><td>${r.date}</td></tr>`}if(top.length===0)h+=`<tr><td colspan="6">暂无排名记录</td></tr>`;h+=`</tbody></table><div class="rp-hint">按任意键或点击返回主菜单</div>`;document.getElementById('ranking-panel').innerHTML=h;document.getElementById('ranking-panel').style.display='block'}
-function backToMenu(){document.getElementById('ranking-panel').style.display='none';document.getElementById('login-overlay').style.display='none';gs=S.MENU;mode=0;rankingShown=!1;p1=mkPl(W/2,'#3399ff');p2=null;bugs.length=0;pts.length=0;drops.length=0;ebls.length=0;lightningBolts.length=0;laserBeams.length=0;boss=null;document.getElementById('boss-bar-wrap').style.display='none';document.getElementById('boss-label').style.display='none'}
-function loginAs(n,a){playerNick=n;playerAge=a;saveUser(n,a);document.getElementById('login-overlay').style.display='none';gs=S.MENU}
-function showLoginUserList(){let users=loadUsers(),list=document.getElementById('login-user-list'),form=document.getElementById('login-new-user-form');if(users.length===0){list.style.display='none';form.style.display='flex';return}list.style.display='flex';list.innerHTML='';for(let u of users){let card=document.createElement('div');card.className='login-user-card';card.innerHTML=`<span class="uc-nick">${esc(u.nickname)}</span><span class="uc-age">${u.age}岁</span>`;card.addEventListener('click',()=>loginAs(u.nickname,u.age));list.appendChild(card)}let newBtn=document.createElement('div');newBtn.id='login-new-user-btn';newBtn.textContent='+ 新用户';newBtn.addEventListener('click',()=>{list.style.display='none';form.style.display='flex';document.getElementById('nick-input').value='';document.getElementById('age-input').value='';document.getElementById('login-err').textContent=''});list.appendChild(newBtn);form.style.display='none'}
-function validateAndLogin(){let n=document.getElementById('nick-input').value.trim();let a=parseInt(document.getElementById('age-input').value);let er='';if(!n)er='请输入昵称';else{let cjk=0;for(let c of n)if(c.charCodeAt(0)>0x7f)cjk++;if(cjk>n.length/2&&n.length>8)er='昵称最多8个中文字符';else if(n.length>16)er='昵称最多16个字符'}if(!er&&(!a||a<1||a>120))er='请输入有效年龄 (1-120)';if(er){document.getElementById('login-err').textContent=er;return}loginAs(n,a)}
-document.getElementById('login-btn').addEventListener('click',validateAndLogin);
-document.getElementById('nick-input').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-btn').click()});
-document.getElementById('age-input').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-btn').click()});
+
+async function showRankingPanel(){
+    var rp = document.getElementById('ranking-panel');
+    // 显示加载中
+    rp.innerHTML = '<div style="text-align:center;color:#00ff88;padding:40px;font-size:16px">排名加载中...</div>';
+    rp.style.display = 'block';
+    var rk;
+    try { rk = await RankingStore.loadRankings(); }
+    catch(e) { rk = []; }
+    var e={nickname:playerNick,age:playerAge,score:score,wave:wave,kills:kills,comboMax:comboMax};
+    var top=rk.slice(0,20);
+    var h='<div class="rp-title">游戏结束</div><div class="rp-stats">得分:'+score+' | 波数:'+wave+' | 击杀:'+kills+' | 最高连击:'+comboMax+'</div><div class="rp-subtitle">历史排名 (前20)</div><table><thead><tr><th>#</th><th>昵称</th><th>年龄</th><th>分数</th><th>波数</th><th>日期</th></tr></thead><tbody>';
+    for(var i=0;i<top.length;i++){
+        var r=top[i];
+        var me=r.score===e.score&&r.wave===e.wave&&r.kills===e.kills&&r.nickname===e.nickname;
+        h+='<tr class="'+(me?'rp-me':'')+'"><td>'+(i+1)+'</td><td>'+esc(r.nickname)+'</td><td>'+r.age+'</td><td>'+r.score+'</td><td>'+r.wave+'</td><td>'+r.date+'</td></tr>';
+    }
+    if(top.length===0)h+='<tr><td colspan="6">暂无排名记录</td></tr>';
+    h+='</tbody></table><div class="rp-hint">按任意键或点击返回主菜单</div>';
+    rp.innerHTML = h;
+    rp.style.display = 'block';
+}
+
+async function saveRankingAndShow(nickname, age, score, wave, kills, comboMax){
+    var d = new Date();
+    var ds = d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0')+' '+d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+    try {
+        await RankingStore.saveRankings({nickname:nickname, age:age, score:score, wave:wave, kills:kills, comboMax:comboMax, date:ds});
+    } catch(e) {}
+    showRankingPanel();
+}
+
+function backToMenu(){
+    document.getElementById('ranking-panel').style.display='none';
+    document.getElementById('login-overlay').style.display='none';
+    gs=S.MENU;mode=0;rankingShown=!1;
+    p1=mkPl(W/2,'#3399ff');p2=null;bugs.length=0;pts.length=0;drops.length=0;ebls.length=0;lightningBolts.length=0;laserBeams.length=0;
+    boss=null;document.getElementById('boss-bar-wrap').style.display='none';document.getElementById('boss-label').style.display='none';
+}
 document.getElementById('ranking-panel').addEventListener('click',backToMenu);
 function start(){
     gs=S.PLAYING;score=0;kills=0;wave=1;splitLv=0;fanLv=0;blueStars=0;lightningLv=0;laserLv=0;bulletType='fan';rankingShown=!1;
@@ -296,7 +465,6 @@ function spawnBug(){
     let sc=bugs.filter(b=>b.star==='red').length,yc=bugs.filter(b=>b.star==='yellow').length,bc=bugs.filter(b=>b.star==='blue').length,gc=bugs.filter(b=>b.star==='green').length,pc=bugs.filter(b=>b.star==='purple').length;
     if(sc>=2)redC=0;if(yc>=2)yelC=0;if(bc>=2)blueC=0;if(gc>=2)grnC=0;if(pc>=1)purC=0;let lc=bugs.filter(b=>b.star==='life').length;if(lc>=1)lifeC=0;
     let armC=wave>=3?.15+(wave-3)*.08:0,ac=bugs.filter(b=>b.hp>1).length;if(ac>=3)armC=0;
-    // 波次修正
     if(waveMod==='STARFALL'){redC*=2;yelC*=2;blueC*=2;grnC*=2;purC*=2;lifeC*=2}
     if(waveMod==='ARMORED')armC*=2;
     let t,r=Math.random();
@@ -346,7 +514,6 @@ function bossFire(){
     }
 }
 
-// === 导弹 ===
 function fireMissile(pl){
     if(!pl.alive)return;let m=mlv();if(m<=0)return;let cnt=MIS_CNT[m];
     if(pl.mis.length>=cnt)return;if(pl.misCd>0){pl.misCd--;return}
@@ -400,12 +567,10 @@ function killBoss(){
     updHUD();
 }
 
-// === 闪电 ===
 function fireLightning(pl){
     let lv=llv(),chains=LIGHT_CHAIN[lv],range=LIGHT_RANGE[lv],bdmg=LIGHT_BDMG[lv];
     let segs=[],lastX=pl.x,lastY=pl.y-pl.h/2-4,hitSet=new Set();
     let current=null;
-    // 找最近目标
     let minD=range,targ=null;
     for(let b of bugs){let d=Math.hypot(b.x-lastX,b.y-lastY);if(d<minD){minD=d;targ=b}}
     if(boss&&bossIntro<=0){let d=Math.hypot(boss.x-lastX,boss.y-lastY);if(d<minD){minD=d;targ=boss}}
@@ -428,15 +593,13 @@ function fireLightning(pl){
                 if(targ.star==='yellow')drops.push({x:targ.x,y:targ.y,w:18,h:18,vy:1.2,life:100,type:'yellow'});
                 if(targ.star==='blue')drops.push({x:targ.x,y:targ.y,w:18,h:18,vy:1.2,life:100,type:'blue'});
                 if(targ.star==='green')drops.push({x:targ.x,y:targ.y,w:18,h:18,vy:1.2,life:100,type:'green'});
-                                if(targ.star==='purple')drops.push({x:targ.x,y:targ.y,w:18,h:18,vy:1.2,life:100,type:'purple'});
+                if(targ.star==='purple')drops.push({x:targ.x,y:targ.y,w:18,h:18,vy:1.2,life:100,type:'purple'});
                 if(targ.star==='life')drops.push({x:targ.x,y:targ.y,w:18,h:18,vy:1.2,life:100,type:'life'});
                 let idx=bugs.indexOf(targ);if(idx>=0)bugs.splice(idx,1);
             }
         }
         lastX=targ.x;lastY=targ.y;
-        // 找下一个链目标
         let nd=range;targ=null;
-        // Boss 优先：闪电总能穿透打到 Boss
         if(boss&&bossIntro<=0&&!hitSet.has(boss)){
             let d=Math.hypot(boss.x-lastX,boss.y-lastY);
             if(d<range){nd=d;targ=boss}
@@ -453,7 +616,6 @@ function fireLightning(pl){
     return segs.length>0;
 }
 
-// laser beam
 function killBug(bi){
     let bug=bugs[bi];
     spP(bug.x,bug.y,5,bug.c,4,14);
@@ -467,9 +629,8 @@ function killBug(bi){
     else if(bug.star==='blue')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'blue'});
     else if(bug.star==='green')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'green'});
     else if(bug.star==='purple')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'purple'});
-            if(bug.star==='life')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'life'});
+    if(bug.star==='life')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'life'});
     bugs.splice(bi,1);
-    // streak check
     for(let s of STREAKS){if(combo===s.k){streakMsg=s.t;streakAlpha=1;break}}
 }
 function fireLaser(pl){
@@ -492,7 +653,6 @@ function fireLaser(pl){
     return hit;
 }
 
-// === 玩家更新 ===
 function updatePlayer(pl,left,right,up,down,fireKey){
     if(!pl.alive)return;
     let dx=0,dy=0;
@@ -548,7 +708,6 @@ function updatePlayer(pl,left,right,up,down,fireKey){
     fireMissile(pl);updateMissiles(pl);
 }
 
-// === 碰撞 ===
 function playerBulletHits(pl){
     if(bulletType==='lightning'||bulletType==='laser')return;
     if(bulletType==='split'){
@@ -576,7 +735,7 @@ function playerBulletHits(pl){
                 if(bug.star==='blue')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'blue'});
                 if(bug.star==='green')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'green'});
                 if(bug.star==='purple')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'purple'});
-            if(bug.star==='life')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'life'});
+                if(bug.star==='life')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'life'});
                 bugs.splice(bi,1);break;
             }
         }
@@ -599,7 +758,7 @@ function playerBulletHits(pl){
                 if(bug.star==='blue')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'blue'});
                 if(bug.star==='green')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'green'});
                 if(bug.star==='purple')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'purple'});
-            if(bug.star==='life')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'life'});
+                if(bug.star==='life')drops.push({x:bug.x,y:bug.y,w:18,h:18,vy:1.2,life:100,type:'life'});
                 bugs.splice(bi,1);break
             }
         }
@@ -613,7 +772,6 @@ function update(){
     updatePlayer(p1,'a','d','w','s',' ');
     if(mode===1)updatePlayer(p2,'ArrowLeft','ArrowRight','ArrowUp','ArrowDown','/');
 
-    // 闪电 + 激光衰减
     if(screenFlash>0)screenFlash--;
     if(waveAnnAlpha>0)waveAnnAlpha=Math.max(0,waveAnnAlpha-.008);
     if(comboTimer>0){comboTimer--;if(comboTimer<=0)combo=0}
@@ -661,21 +819,17 @@ function update(){
     }
 
     for(let i=pts.length-1;i>=0;i--){pts[i].x+=pts[i].vx;pts[i].y+=pts[i].vy;pts[i].lf--;if(pts[i].lf<=0)pts.splice(i,1)}
-    if(mode===1&&!p1.alive&&!p2.alive){gs=S.OVER;if(!rankingShown){rankingShown=!0;RankingStore.saveRankings({nickname:playerNick,age:playerAge,score:score,wave:wave,kills:kills,comboMax:comboMax});showRankingPanel()}}if(mode===0&&!p1.alive){gs=S.OVER;if(!rankingShown){rankingShown=!0;RankingStore.saveRankings({nickname:playerNick,age:playerAge,score:score,wave:wave,kills:kills,comboMax:comboMax});showRankingPanel()}}
+    if(mode===1&&!p1.alive&&!p2.alive){gs=S.OVER;if(!rankingShown){rankingShown=!0;saveRankingAndShow(playerNick,playerAge,score,wave,kills,comboMax)}}if(mode===0&&!p1.alive){gs=S.OVER;if(!rankingShown){rankingShown=!0;saveRankingAndShow(playerNick,playerAge,score,wave,kills,comboMax)}}
     updHUD();if(boss)document.getElementById('boss-bar').style.width=(bossHp/bossMaxHp*100)+'%'
 }
 
-// === 绘制 ===
-// 科幻战机
 function drawPlane(x,y,w,h,inv,clr){
     if(inv>0&&Math.floor(inv/5)%2===0)return;
     ctx.save();ctx.translate(x,y);
-    // 引擎光焰
     let tailFlick=Math.sin(si*.4)*(dx_?4:2)+4;
     ctx.fillStyle='#00aaff';ctx.shadowColor='#0088ff';ctx.shadowBlur=14;
     ctx.beginPath();ctx.moveTo(-4,h/2-2);ctx.lineTo(0,h/2+10+tailFlick);ctx.lineTo(4,h/2-2);ctx.closePath();ctx.fill();
     ctx.shadowBlur=0;
-    // 机身
     let grd=ctx.createLinearGradient(0,-h/2,0,h/2);
     grd.addColorStop(0,clr);grd.addColorStop(.7,clr);grd.addColorStop(1,'#1a5588');
     ctx.fillStyle=grd;ctx.beginPath();
@@ -684,15 +838,12 @@ function drawPlane(x,y,w,h,inv,clr){
     ctx.lineTo(w*.15,h/2);ctx.lineTo(-w*.15,h/2);
     ctx.lineTo(-w*.35,h/2-10);ctx.lineTo(-w*.28,-h/2+10);
     ctx.closePath();ctx.fill();
-    // 机翼
     ctx.fillStyle=clr;ctx.beginPath();
     ctx.moveTo(-w*.22,-h*.15);ctx.lineTo(-w*.48,-h*.1);ctx.lineTo(-w*.48,h*.2);ctx.lineTo(-w*.18,h*.1);ctx.closePath();ctx.fill();
     ctx.beginPath();
     ctx.moveTo(w*.22,-h*.15);ctx.lineTo(w*.48,-h*.1);ctx.lineTo(w*.48,h*.2);ctx.lineTo(w*.18,h*.1);ctx.closePath();ctx.fill();
-    // 座舱
     ctx.fillStyle='rgba(100,200,255,.7)';ctx.shadowColor='#44aaff';ctx.shadowBlur=6;
     ctx.beginPath();ctx.ellipse(0,-4,w*.2,h*.2,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-    // 机翼尖端灯
     ctx.fillStyle='#ff3333';ctx.shadowColor='#ff0000';ctx.shadowBlur=4;
     ctx.beginPath();ctx.arc(-w*.46,-h*.05,2.5,0,Math.PI*2);ctx.fill();
     ctx.fillStyle=si%60<30?'#33ff33':'#33ff33';ctx.shadowColor='#00ff00';
@@ -700,16 +851,13 @@ function drawPlane(x,y,w,h,inv,clr){
     ctx.restore();
 }
 
-// 科幻虫子
 function drawBug(x,y,w,h,c,star){
     ctx.save();ctx.translate(x,y);
-    // 光环（带星虫子）
     if(star){
         let glowC=star==='red'?'rgba(255,68,68,.3)':star==='yellow'?'rgba(255,221,0,.3)':star==='blue'?'rgba(68,204,255,.3)':star==='green'?'rgba(68,255,136,.3)':'rgba(200,68,255,.3)';
         ctx.fillStyle=glowC;ctx.shadowColor=glowC;ctx.shadowBlur=10;
         ctx.beginPath();ctx.arc(0,0,Math.max(w,h)/2+4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
     }
-    // 六边形身体
     let sides=6,r=Math.max(w,h)/2;
     ctx.fillStyle=c;ctx.beginPath();
     for(let i=0;i<sides;i++){
@@ -718,16 +866,12 @@ function drawBug(x,y,w,h,c,star){
     }
     ctx.closePath();ctx.fill();
     ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=1;ctx.stroke();
-    // 电路纹
     ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(-r*.3,-r*.2);ctx.lineTo(-r*.1,-r*.4);ctx.lineTo(r*.15,-r*.3);ctx.stroke();
     ctx.beginPath();ctx.moveTo(-r*.25,r*.1);ctx.lineTo(0,r*.25);ctx.lineTo(r*.2,r*.15);ctx.stroke();
-    // 复眼
     ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-w*.22,-h*.18,4.5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(w*.22,-h*.18,4.5,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='#111';ctx.beginPath();ctx.arc(-w*.22,-h*.18,2.2,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(w*.22,-h*.18,2.2,0,Math.PI*2);ctx.fill();
-    // 眼高光
     ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.arc(-w*.22-.6,-h*.18-1,1,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(w*.22-.6,-h*.18-1,1,0,Math.PI*2);ctx.fill();
-    // 星星标记
     if(star==='red'){ctx.fillStyle='#ff4444';ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillText('☆',0,-h/2-8)}
     if(star==='yellow'){ctx.fillStyle='#ffdd00';ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillText('★',0,-h/2-8)}
     if(star==='blue'){ctx.fillStyle='#44ccff';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText('🔷',0,-h/2-8)}
@@ -736,12 +880,10 @@ function drawBug(x,y,w,h,c,star){
     ctx.restore();
 }
 
-// 科幻 Boss
 function drawBoss(){
     if(!boss)return;
     let x=boss.x,y=boss.y,w=boss.w,h=boss.h,t=boss.type;
     ctx.save();ctx.translate(x,y);
-    // 外环旋转
     ctx.save();ctx.rotate(si*.03*(t===1?2.5:t===2?.7:1));
     ctx.strokeStyle=t===1?'rgba(255,0,170,.5)':t===2?'rgba(255,170,0,.5)':'rgba(255,100,60,.4)';ctx.lineWidth=t===1?1.5:t===2?3:2;
     ctx.beginPath();ctx.arc(0,0,w/2-2,0,Math.PI*2);ctx.stroke();
@@ -750,11 +892,9 @@ function drawBoss(){
     if(t===2){ctx.beginPath();ctx.arc(0,0,w/2-14,0,Math.PI*2);ctx.stroke()}
     ctx.restore();
     if(t===1){
-        // Speed boss: 菱形 + 推进尾焰
         ctx.fillStyle=boss.c;ctx.beginPath();ctx.moveTo(0,-h*.45);ctx.lineTo(w*.28,0);ctx.lineTo(0,h*.35);ctx.lineTo(-w*.28,0);ctx.closePath();ctx.fill();
         ctx.fillStyle='#ff4422';ctx.beginPath();ctx.ellipse(0,h*.35,w*.12,h*.1,0,0,Math.PI*2);ctx.fill();
     }else if(t===2){
-        // Tank boss: 厚重六边形
         let grd=ctx.createRadialGradient(0,-5,4,0,5,w/2);
         grd.addColorStop(0,'#ffcc44');grd.addColorStop(.5,boss.c);grd.addColorStop(1,'#663300');
         ctx.fillStyle=grd;ctx.beginPath();
@@ -762,20 +902,16 @@ function drawBoss(){
         ctx.closePath();ctx.fill();
         ctx.strokeStyle='#ffe080';ctx.lineWidth=1.5;ctx.stroke();
     }else{
-        // 标准Boss
         let grd=ctx.createRadialGradient(0,-8,5,0,8,w/2);
         grd.addColorStop(0,'#ff6644');grd.addColorStop(.5,boss.c);grd.addColorStop(1,'#880022');
         ctx.fillStyle=grd;ctx.beginPath();ctx.ellipse(0,0,w*.38,h*.42,0,0,Math.PI*2);ctx.fill();
     }
-    // 核心
     let corePulse=Math.sin(si*(t===1?.18:.12))*.2+.8;
     ctx.fillStyle=`rgba(255,255,100,${corePulse})`;ctx.shadowColor='#ffff44';ctx.shadowBlur=14*corePulse;
     ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
     ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,5,0,Math.PI*2);ctx.fill();
-    // 护甲/尾焰
     if(t===0){ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(0,12,w*.25,h*.15,0,0,Math.PI*2);ctx.fill()}
     if(t===2){ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(0,10,w*.2,h*.12,0,0,Math.PI*2);ctx.fill()}
-    // 眼睛
     for(let i=-1;i<=1;i+=2){
         ctx.fillStyle='#fff';ctx.shadowColor=t===1?'#ff00aa':t===2?'#ff8800':'#ff2222';ctx.shadowBlur=6;
         ctx.beginPath();ctx.arc(i*16,-h*.28,9+t*.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
@@ -783,17 +919,14 @@ function drawBoss(){
         ctx.fillStyle='#111';ctx.beginPath();ctx.arc(i*16+ex,-h*.28,4.5-t*.3,0,Math.PI*2);ctx.fill();
         ctx.fillStyle='rgba(255,255,255,.7)';ctx.beginPath();ctx.arc(i*16+ex-1,-h*.28-1.5,1.8,0,Math.PI*2);ctx.fill();
     }
-    // 小眼
     if(t!==2){ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,-h*.35,4.5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#111';ctx.beginPath();ctx.arc(0+Math.sin(si*.1)*1.5,-h*.35,2,0,Math.PI*2);ctx.fill()}
     ctx.restore();
 }
 
-// 闪电绘制
 function drawLightningBolts(){
     for(let lb of lightningBolts){
         let alpha=lb.life/18;
         ctx.globalAlpha=alpha;
-        // 主链
         for(let seg of lb.segs){
             ctx.strokeStyle='#88eeff';ctx.lineWidth=2.5;ctx.shadowColor='#44ccff';ctx.shadowBlur=12;
             ctx.beginPath();
@@ -804,7 +937,6 @@ function drawLightningBolts(){
                 ctx.lineTo(seg.x1+dx*t+jit,seg.y1+dy*t+jit*.7);
             }
             ctx.stroke();
-            // 亮白芯
             ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.shadowBlur=4;
             ctx.beginPath();ctx.moveTo(seg.x1,seg.y1);
             for(let s=1;s<=segs;s++){
@@ -812,25 +944,20 @@ function drawLightningBolts(){
                 ctx.lineTo(seg.x1+dx*t+jit,seg.y1+dy*t+jit*.7);
             }
             ctx.stroke();
-            // 命中点闪光
             ctx.fillStyle='#ffffff';ctx.shadowColor='#88eeff';ctx.shadowBlur=18;
             ctx.beginPath();ctx.arc(seg.hitX,seg.hitY,4,0,Math.PI*2);ctx.fill();
         }
         ctx.shadowBlur=0;
     }
     ctx.globalAlpha=1;
-    // 激光束
     for(let lb of laserBeams){
         let a=lb.life/14;
-        // 外光晕
         ctx.shadowBlur=40*a;ctx.shadowColor='#cc44ff';
         ctx.strokeStyle=`rgba(204,68,255,${a*.35})`;ctx.lineWidth=lb.width+12;
         ctx.beginPath();ctx.moveTo(lb.x,0);ctx.lineTo(lb.x,y0-20);ctx.stroke();
-        // 主光束
         ctx.shadowBlur=24*a;
         ctx.strokeStyle=`rgba(230,120,255,${a*.7})`;ctx.lineWidth=lb.width+2;
         ctx.beginPath();ctx.moveTo(lb.x,0);ctx.lineTo(lb.x,y0-20);ctx.stroke();
-        // 亮芯
         ctx.shadowBlur=8*a;
         ctx.strokeStyle=`rgba(255,255,255,${a})`;ctx.lineWidth=Math.max(2,lb.width*.35);
         ctx.beginPath();ctx.moveTo(lb.x,0);ctx.lineTo(lb.x,y0-20);ctx.stroke();
@@ -844,7 +971,6 @@ function drawMissile(m){
     ctx.fillStyle=c;ctx.shadowColor=c;ctx.shadowBlur=12;
     ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(-5,-4);ctx.lineTo(-5,4);ctx.closePath();ctx.fill();
     ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,3,0,Math.PI*2);ctx.fill();
-    // 尾焰
     ctx.fillStyle='#ffaa00';ctx.shadowColor='#ff6600';ctx.shadowBlur=8;
     ctx.beginPath();ctx.moveTo(-5,0);ctx.lineTo(-14,-2.5);ctx.lineTo(-14,2.5);ctx.closePath();ctx.fill();
     ctx.shadowBlur=0;ctx.restore();
@@ -885,7 +1011,6 @@ function drawPlayer(pl,isP2){
 function draw(){
     ctx.clearRect(0,0,W,H);
     ctx.save();ctx.translate(shakeX,shakeY);
-    // 波次背景色调
     if(gs===S.PLAYING){
         if(waveMod==='SPEED+'){ctx.fillStyle='rgba(0,180,255,.04)';ctx.fillRect(-20,-20,W+40,H+40)}
         else if(waveMod==='ARMORED'){ctx.fillStyle='rgba(255,60,30,.04)';ctx.fillRect(-20,-20,W+40,H+40)}
@@ -893,26 +1018,21 @@ function draw(){
         else if(waveMod==='SWARM'){ctx.fillStyle='rgba(0,220,80,.04)';ctx.fillRect(-20,-20,W+40,H+40)}
         else if(waveMod==='BOSS RUSH'){ctx.fillStyle='rgba(255,120,0,.04)';ctx.fillRect(-20,-20,W+40,H+40)}
     }
-    // 星云
     for(let n of nebulae){
         ctx.fillStyle=`${n.c}${n.a})`;
         ctx.beginPath();ctx.ellipse(n.x,n.y,n.rx,n.ry,0,0,Math.PI*2);ctx.fill();
     }
-    // 慢速星
     for(let s of stBg){
         s.y+=s.sp;if(s.y>H+5){s.y=-5;s.x=Math.random()*W}s.ph+=.03;
         let a=.3+Math.sin(s.ph)*.3+.4;
         if(s.blink)a*=Math.sin(si*.12)*(s.ph%2?.6:.8)+.5;
         ctx.fillStyle=`rgba(200,220,255,${a})`;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
     }
-    // 快速星
     for(let s of stBg2){
         s.y+=s.sp;if(s.y>H+5){s.y=-5;s.x=Math.random()*W}
         ctx.fillStyle='rgba(180,210,255,.7)';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
     }
-    // 粒子
     for(let p of pts){let a=p.lf/p.ml;ctx.globalAlpha=a;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.r*a,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;
-    // 游戏内容
     if(gs===S.PLAYING||gs===S.OVER||gs===S.WIN){
         for(let d of drops){
             let c=d.type==='red'?'#ff4444':d.type==='yellow'?'#ffdd00':d.type==='blue'?'#44ccff':d.type==='green'?'#44ff88':d.type==='purple'?'#cc44ff':'#00ffee';
@@ -930,27 +1050,20 @@ function draw(){
         drawLightningBolts();
         drawBoss();
         drawPlayer(p1,!1);if(p2)drawPlayer(p2,!0);
-        // 闪电屏幕闪光
         if(screenFlash>0){ctx.fillStyle=`rgba(100,220,255,${screenFlash*.04})`;ctx.fillRect(0,0,W,H)}
-        // 波次公告
         if(waveAnnAlpha>0){ctx.save();ctx.globalAlpha=waveAnnAlpha;ctx.fillStyle='#ffdd44';ctx.font='bold 26px "PingFang SC","Microsoft YaHei",sans-serif';ctx.textAlign='center';ctx.shadowColor='#ff8800';ctx.shadowBlur=12;ctx.fillText(waveAnnounce,W/2,H*.15);ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.restore()}
-        // 分数弹出
         for(let sp of scorePops){
             let a=Math.min(1,sp.life/15);
             ctx.save();ctx.globalAlpha=a;ctx.fillStyle=sp.c;ctx.font=`bold ${sp.sz}px sans-serif`;ctx.textAlign='center';ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlur=3;
             ctx.fillText(sp.text,sp.x,sp.y);ctx.shadowBlur=0;ctx.restore();
         }
-        // 连击
         if(combo>=10){let sz=16+Math.min(combo,30)*.6;ctx.save();ctx.fillStyle='#ffe066';ctx.font=`bold ${sz}px "PingFang SC","Microsoft YaHei",sans-serif`;ctx.textAlign='right';ctx.shadowColor='#ff8800';ctx.shadowBlur=8;ctx.fillText(`连击 ×${combo}`,W-16,36);ctx.shadowBlur=0;ctx.restore()}
-        // 击杀播报
         if(streakAlpha>0){ctx.save();ctx.globalAlpha=streakAlpha;let sz=24+streakAlpha*16;ctx.fillStyle='#ffdd00';ctx.font=`bold ${sz}px "PingFang SC","Microsoft YaHei",sans-serif`;ctx.textAlign='center';ctx.shadowColor='#ff6600';ctx.shadowBlur=24;ctx.fillText(streakMsg,W/2,H*.45);ctx.shadowBlur=0;ctx.restore()}
     }
-    ctx.restore(); // 结束屏幕震动
+    ctx.restore();
     if(gs===S.LOGIN){
         document.getElementById('login-overlay').style.display='flex';
-        if(!loginUIReady){showLoginUserList();loginUIReady=!0}
     }
-    // 菜单
     if(gs===S.MENU){
         document.getElementById('login-overlay').style.display='none';
         ctx.fillStyle='rgba(0,0,20,.7)';ctx.fillRect(0,0,W,H);
@@ -983,8 +1096,7 @@ function roundRect(x,y,w,h,r){
     ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
 }
 
-let dx_=0;// 用于引擎光焰
-// 劫持玩家移动以跟踪dx_（最小侵入方式）
+let dx_=0;
 const _origUpdatePlayer=updatePlayer;
 updatePlayer=function(pl,left,right,up,down,fireKey){
     let preX=pl.x,preY=pl.y;
@@ -1018,6 +1130,9 @@ function loop(t){
   draw();
   requestAnimationFrame(loop);
 }
+
+// 初始化登录界面
+initLoginScreen();
 requestAnimationFrame(loop);
 </script>
 </body>
